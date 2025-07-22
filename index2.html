@@ -7,12 +7,13 @@
     <style>
         /* Grundlegende Stile und Schriftarten */
         :root {
-            --color-background: #f4f6f9;
+            --color-background: #f8f9fa;
             --color-box-blue: #e0e8f6;
             --color-box-blue-border: #a9bada;
             --color-box-pink: #fde6ea;
             --color-box-pink-border: #f8c6cf;
-            --color-text: #333;
+            --color-text-main: #212529;
+            --color-text-sub: #6c757d;
             --color-arrow: #a9bada;
             --color-correct: #28a745;
             --color-incorrect: #dc3545;
@@ -23,11 +24,10 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--color-background);
-            color: var(--color-text);
+            color: var(--color-text-main);
             display: flex;
-            justify-content: center;
-            align-items: center;
             flex-direction: column;
+            align-items: center;
             min-height: 100vh;
             margin: 0;
             padding: 20px;
@@ -36,103 +36,104 @@
 
         h1 {
             text-align: center;
-            color: var(--color-text);
+            margin-bottom: 40px;
         }
 
-        /* Hauptcontainer für das Diagramm und die Karten */
+        /* Hauptcontainer */
         .app-container {
-            position: relative;
             width: 100%;
             max-width: 900px;
         }
         
-        /* Das Diagramm-Layout */
+        /* Neues Diagramm-Layout mit Flexbox */
         .diagramm {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: auto auto auto auto auto;
-            gap: 20px 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px; /* Abstand zwischen den Reihen */
+        }
+
+        .diagramm-row {
+            display: flex;
+            justify-content: center;
             width: 100%;
-            margin-bottom: 20px; /* Abstand zu den Karten */
+            position: relative;
+        }
+
+        .diagramm-row-split {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            gap: 20px;
+            position: relative;
+        }
+
+        /* Pfeile zwischen den Reihen */
+        .diagramm-row::after {
+            content: '↓';
+            position: absolute;
+            bottom: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 28px;
+            color: var(--color-arrow);
+        }
+        
+        /* Kein Pfeil nach der letzten Box */
+        .diagramm-row:last-child::after {
+            content: '';
         }
 
         /* Allgemeine Stile für die Boxen im Diagramm */
         .diagramm-box {
-            padding: 15px;
+            padding: 15px 25px;
             border: 2px solid;
             border-radius: 50px; /* Ovale Form */
             text-align: center;
-            position: relative;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
-            cursor: help; /* Zeigt an, dass es eine Erklärung gibt */
+            cursor: help;
             background-color: #fff;
+            min-width: 200px;
+            flex-grow: 0;
+            flex-shrink: 1;
         }
         
+        .diagramm-box h3 {
+            margin: 0 0 5px 0;
+            font-size: 1.1em;
+        }
+        
+        .diagramm-box p {
+            margin: 0;
+            font-size: 0.9em;
+            color: var(--color-text-sub);
+        }
+
         .diagramm-box.target-active {
             transform: scale(1.05);
             box-shadow: 0 0 15px rgba(0, 100, 255, 0.5);
         }
 
-        .diagramm-box.feedback-correct {
-            animation: flash-green 0.5s ease;
-        }
+        .diagramm-box.feedback-correct { animation: flash-green 0.5s ease; }
+        .diagramm-box.feedback-incorrect { animation: flash-red 0.5s ease; }
 
-        .diagramm-box.feedback-incorrect {
-            animation: flash-red 0.5s ease;
-        }
-
-        /* Pfeile zwischen den Boxen */
-        .diagramm-box::after {
-            content: '↓';
-            position: absolute;
-            bottom: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 24px;
-            color: var(--color-arrow);
-        }
-
-        /* Spezifische Positionierung und Farben */
-        #quelle {
-            grid-column: 1 / -1; /* Umspannt beide Spalten */
+        /* Spezifische Farben und Stile */
+        #quelle, #austrittspforte, #uebertragung, #eintrittspforte {
             background-color: var(--color-box-blue);
             border-color: var(--color-box-blue-border);
         }
-        #austrittspforte {
-            grid-column: 1 / -1;
-            background-color: var(--color-box-blue);
-            border-color: var(--color-box-blue-border);
+        #direkt, #indirekt, #natuerliche, #unnatuerliche {
+             border-color: var(--color-box-blue-border);
         }
-        #uebertragung { 
-            grid-column: 1 / -1; 
-            background-color: var(--color-box-blue);
-            border-color: var(--color-box-blue-border);
-        }
-        #direkt { grid-column: 1; border-color: var(--color-box-blue-border); }
-        #indirekt { grid-column: 2; border-color: var(--color-box-blue-border); }
-        #direkt::after, #indirekt::after { content: ''; } /* Keine Pfeile hier */
-        
-        #eintrittspforte {
-            grid-column: 1 / -1;
-            background-color: var(--color-box-blue);
-            border-color: var(--color-box-blue-border);
-        }
-        #natuerliche { grid-column: 1; border-color: var(--color-box-blue-border); }
-        #unnatuerliche { grid-column: 2; border-color: var(--color-box-blue-border); }
-        #natuerliche::after, #unnatuerliche::after { content: ''; }
-
         #empfaenger {
-            grid-column: 1 / -1;
             background-color: var(--color-box-pink);
             border-color: var(--color-box-pink-border);
         }
-        #empfaenger::after { content: ''; } /* Letztes Element hat keinen Pfeil */
-
 
         /* Karten-Container und Stil */
         .karten-container {
-            margin-top: 30px;
-            min-height: 80px; /* Platz für die Karte */
+            margin-top: 40px;
+            min-height: 80px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -148,18 +149,13 @@
             font-size: 1em;
             font-weight: bold;
             text-align: center;
-            user-select: none; /* Verhindert Textauswahl beim Ziehen */
+            user-select: none;
             transition: visibility 0.2s, transform 0.2s ease;
         }
-        
-        .karte:active {
-            cursor: grabbing;
-        }
+        .karte:active { cursor: grabbing; }
 
-        /* Tooltip für Hover-Erklärungen */
-        [data-tooltip] {
-            position: relative;
-        }
+        /* Tooltip */
+        [data-tooltip] { position: relative; }
         [data-tooltip]::before {
             content: attr(data-tooltip);
             position: absolute;
@@ -168,94 +164,56 @@
             padding: 8px 12px;
             border-radius: 6px;
             font-size: 0.9em;
-            white-space: pre-wrap; /* Erhält Zeilenumbrüche und bricht lange Zeilen um */
+            white-space: pre-wrap;
             width: max-content;
             max-width: 250px;
             z-index: 10;
-            
             bottom: 110%;
             left: 50%;
             transform: translateX(-50%);
-
             opacity: 0;
             transition: opacity 0.2s;
             pointer-events: none;
         }
-        [data-tooltip]:hover::before {
-            opacity: 1;
-        }
+        [data-tooltip]:hover::before { opacity: 1; }
 
         /* Erfolgsmeldung */
         .erfolgs-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-            visibility: hidden;
-            opacity: 0;
+            display: flex; justify-content: center; align-items: center;
+            z-index: 100; visibility: hidden; opacity: 0;
             transition: visibility 0s 0.3s, opacity 0.3s;
         }
-
-        .erfolgs-overlay.sichtbar {
-            visibility: visible;
-            opacity: 1;
-            transition: opacity 0.3s;
-        }
-
+        .erfolgs-overlay.sichtbar { visibility: visible; opacity: 1; transition: opacity 0.3s; }
         .erfolgs-box {
-            background: white;
-            padding: 40px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            background: white; padding: 40px; border-radius: 10px;
+            text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
-
-        .erfolgs-box h2 {
-            color: var(--color-correct);
-            margin-top: 0;
-        }
-
+        .erfolgs-box h2 { color: var(--color-correct); margin-top: 0; }
         #neustart-btn {
-            padding: 10px 20px;
-            font-size: 1em;
+            padding: 10px 20px; font-size: 1em;
             background-color: var(--color-box-blue-border);
-            border: none;
-            color: var(--color-text);
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.2s;
+            border: none; color: var(--color-text-main); border-radius: 5px;
+            cursor: pointer; transition: background-color 0.2s;
         }
-        #neustart-btn:hover {
-            background-color: #92a7c9;
-        }
+        #neustart-btn:hover { background-color: #92a7c9; }
 
-        /* Animationen für Feedback */
-        @keyframes flash-green {
-            50% { background-color: var(--color-correct); color: white; }
-        }
-        @keyframes flash-red {
-            50% { background-color: var(--color-incorrect); color: white; }
-        }
+        /* Animationen */
+        @keyframes flash-green { 50% { background-color: var(--color-correct); color: white; } }
+        @keyframes flash-red { 50% { background-color: var(--color-incorrect); color: white; } }
 
-        /* Responsive Design für kleinere Bildschirme */
+        /* Responsive Design */
         @media (max-width: 600px) {
-            body { padding: 10px; }
             h1 { font-size: 1.5em; }
-            .diagramm {
-                grid-template-columns: 1fr;
-                gap: 35px 0;
+            .diagramm-row-split { flex-direction: column; align-items: center; gap: 40px; }
+            .diagramm-row-split .diagramm-box { width: 80%; }
+            .diagramm-row-split .diagramm-box:first-child::after {
+                 content: '↓'; position: absolute; bottom: -35px; left: 50%;
+                 transform: translateX(-50%); font-size: 28px; color: var(--color-arrow);
             }
             #uebertragung, #eintrittspforte { display: none; }
-            .diagramm-box::after { bottom: -30px; }
-            #austrittspforte::after, #indirekt::after, #unnatuerliche::after { content: '↓'; }
         }
-
     </style>
 </head>
 <body>
@@ -264,15 +222,47 @@
     
     <div class="app-container">
         <div class="diagramm">
-            <div id="quelle" class="diagramm-box drop-zone" data-tooltip="Der Ursprung der Krankheitserreger.">Infektionsquelle</div>
-            <div id="austrittspforte" class="diagramm-box drop-zone" data-tooltip="Hier verlassen die Erreger die Quelle.">Austrittspforte</div>
-            <div id="uebertragung" class="diagramm-box" data-tooltip="Der Weg der Erreger von der Quelle zum Empfänger.">Übertragungsweg</div>
-            <div id="direkt" class="diagramm-box drop-zone" data-tooltip="Von Mensch zu Mensch.">direkt</div>
-            <div id="indirekt" class="diagramm-box drop-zone" data-tooltip="Über Gegenstände, Tiere oder Lebensmittel.">indirekt</div>
-            <div id="eintrittspforte" class="diagramm-box" data-tooltip="Hier dringen die Erreger in den neuen Wirt ein.">Eintrittspforte</div>
-            <div id="natuerliche" class="diagramm-box drop-zone" data-tooltip="Natürliche Körperöffnungen.">natürliche</div>
-            <div id="unnatuerliche" class="diagramm-box drop-zone" data-tooltip="Durch Verletzungen der Haut.">unnatürliche</div>
-            <div id="empfaenger" class="diagramm-box drop-zone" data-tooltip="Die Person, die krank wird.">Infektionsempfänger</div>
+            <div class="diagramm-row">
+                <div id="quelle" class="diagramm-box drop-zone" data-tooltip="Der Ursprung der Krankheitserreger.">
+                    <h3>Infektionsquelle</h3>
+                    <p>aus dem eigenen Körper / aus der Umgebung</p>
+                </div>
+            </div>
+            <div class="diagramm-row">
+                 <div id="austrittspforte" class="diagramm-box drop-zone" data-tooltip="Hier verlassen die Erreger die Quelle."><h3>Austrittspforte</h3></div>
+            </div>
+            <div class="diagramm-row">
+                 <div id="uebertragung" class="diagramm-box"><h3>Übertragungsweg</h3></div>
+            </div>
+            <div class="diagramm-row-split">
+                <div id="direkt" class="diagramm-box drop-zone" data-tooltip="Von Mensch zu Mensch.">
+                    <h3>direkt:</h3>
+                    <p>von Mensch zu Mensch</p>
+                </div>
+                <div id="indirekt" class="diagramm-box drop-zone" data-tooltip="Über Gegenstände, Tiere oder Lebensmittel.">
+                    <h3>indirekt:</h3>
+                    <p>z.B. über einen Gegenstand</p>
+                </div>
+            </div>
+             <div class="diagramm-row">
+                 <div id="eintrittspforte" class="diagramm-box drop-zone" data-tooltip="Hier dringen die Erreger in den neuen Wirt ein."><h3>Eintrittspforte</h3></div>
+            </div>
+            <div class="diagramm-row-split">
+                 <div id="natuerliche" class="diagramm-box drop-zone" data-tooltip="Natürliche Körperöffnungen.">
+                     <h3>natürliche:</h3>
+                     <p>z.B. Mund, Nase</p>
+                </div>
+                 <div id="unnatuerliche" class="diagramm-box drop-zone" data-tooltip="Durch Verletzungen der Haut.">
+                     <h3>unnatürliche:</h3>
+                     <p>z.B. Wunden</p>
+                </div>
+            </div>
+            <div class="diagramm-row">
+                <div id="empfaenger" class="diagramm-box drop-zone" data-tooltip="Die Person, die krank wird.">
+                    <h3>Infektionsempfänger</h3>
+                    <p>beeinflussende Faktoren: Immunsystem etc.</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -286,58 +276,59 @@
         </div>
     </div>
 
-    <!-- Audio-Elemente direkt im HTML für bessere Kompatibilität -->
-    <audio id="sound-correct" src="https://actions.google.com/sounds/v1/events/ping.ogg" preload="auto"></audio>
-    <audio id="sound-incorrect" src="https://www.soundjay.com/buttons/sounds/button-10.mp3" preload="auto"></audio>
+    <audio id="sound-correct" src="https://actions.google.com/sounds/v1/events/ping.ogg" preload="none"></audio>
+    <audio id="sound-incorrect" src="https://www.soundjay.com/buttons/sounds/button-10.mp3" preload="none"></audio>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // ----- DATEN -----
             const begriffePool = [
-                // Infektionsquelle
                 { text: "Mensch mit ansteckender Krankheit", targetId: "quelle" },
-                // Austrittspforte
                 { text: "Atemwege (Husten, Niesen)", targetId: "austrittspforte" },
                 { text: "Wunde (mit Blut oder Sekret)", targetId: "austrittspforte" },
                 { text: "Darm (mit dem Stuhl)", targetId: "austrittspforte" },
                 { text: "Haut (z.B. bei Hautpilz)", targetId: "austrittspforte" },
-                // Übertragungsweg (direkt)
                 { text: "Hände schütteln", targetId: "direkt" },
                 { text: "Tröpfcheninfektion", targetId: "direkt" },
                 { text: "Sexueller Kontakt", targetId: "direkt" },
                 { text: "Von Mutter auf Kind", targetId: "direkt" },
-                // Übertragungsweg (indirekt)
                 { text: "Türklinke (Schmierinfektion)", targetId: "indirekt" },
                 { text: "Schmutzige Oberfläche", targetId: "indirekt" },
                 { text: "Nicht gereinigter Blutdruckapparat", targetId: "indirekt" },
                 { text: "Kontaminierte Nadeln", targetId: "indirekt" },
-                // Eintrittspforte (natürliche)
                 { text: "Mund und Nase", targetId: "natuerliche" },
                 { text: "Augenbindehaut", targetId: "natuerliche" },
                 { text: "Harnröhre", targetId: "natuerliche" },
                 { text: "Verdauungstrakt", targetId: "natuerliche" },
-                // Eintrittspforte (unnatürliche)
                 { text: "Hautverletzung / Wunde", targetId: "unnatuerliche" },
                 { text: "Stichverletzung (Nadel)", targetId: "unnatuerliche" },
                 { text: "Operationswunde", targetId: "unnatuerliche" },
                 { text: "Katheterzugang", targetId: "unnatuerliche" },
-                // Infektionsempfänger
                 { text: "Person, welche sich ansteckt", targetId: "empfaenger" },
             ];
             let verbleibendeBegriffe = [];
             
-            // ----- DOM-ELEMENTE -----
             const kartenContainer = document.getElementById('karten-container');
             const dropZones = document.querySelectorAll('.drop-zone');
             const erfolgsOverlay = document.getElementById('erfolgs-overlay');
             const neustartBtn = document.getElementById('neustart-btn');
-            // Audio-Elemente aus dem HTML holen
             const soundCorrect = document.getElementById('sound-correct');
             const soundIncorrect = document.getElementById('sound-incorrect');
 
             let aktuelleKarte = null;
+            let audioUnlocked = false;
 
-            // ----- FUNKTIONEN -----
+            // Funktion um Audio bei erster Nutzerinteraktion freizuschalten
+            function unlockAudio() {
+                if (audioUnlocked) return;
+                soundCorrect.load();
+                soundIncorrect.load();
+                audioUnlocked = true;
+                document.body.removeEventListener('mousedown', unlockAudio);
+                document.body.removeEventListener('touchstart', unlockAudio);
+            }
+            document.body.addEventListener('mousedown', unlockAudio);
+            document.body.addEventListener('touchstart', unlockAudio);
+
             function shuffleArray(array) {
                 for (let i = array.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
@@ -346,11 +337,7 @@
             }
 
             function zeigeNaechsteKarte() {
-                if (aktuelleKarte) {
-                    aktuelleKarte.remove();
-                    aktuelleKarte = null;
-                }
-
+                if (aktuelleKarte) aktuelleKarte.remove();
                 if (verbleibendeBegriffe.length === 0) {
                     zeigeErfolgsmeldung();
                     return;
@@ -377,7 +364,6 @@
                 zeigeNaechsteKarte();
             }
 
-            // ----- EVENT HANDLER -----
             function handleDragStart(e) {
                 e.dataTransfer.setData('text/plain', e.target.dataset.targetId);
                 e.dataTransfer.effectAllowed = 'move';
@@ -385,7 +371,6 @@
 
             function handleDragOver(e) {
                 e.preventDefault();
-                e.dataTransfer.dropEffect = 'move';
                 this.classList.add('target-active');
             }
 
@@ -396,31 +381,24 @@
             function handleDrop(e) {
                 e.preventDefault();
                 this.classList.remove('target-active');
-                
                 if (!aktuelleKarte) return;
 
                 const draggedTargetId = e.dataTransfer.getData('text/plain');
                 const dropZoneId = this.id;
 
                 if (draggedTargetId === dropZoneId) {
-                    // RICHTIG
-                    soundCorrect.currentTime = 0; // Sound zurücksetzen
+                    soundCorrect.currentTime = 0;
                     soundCorrect.play();
                     this.classList.add('feedback-correct');
                     aktuelleKarte.style.visibility = 'hidden';
-
                     setTimeout(() => {
                         this.classList.remove('feedback-correct');
                         zeigeNaechsteKarte();
                     }, 500);
-
                 } else {
-                    // FALSCH
-                    soundIncorrect.currentTime = 0; // Sound zurücksetzen
+                    soundIncorrect.currentTime = 0;
                     soundIncorrect.play();
                     this.classList.add('feedback-incorrect');
-                    
-                    // Wackel-Animation
                     aktuelleKarte.style.transform = 'translateX(-10px)';
                      setTimeout(() => {
                         aktuelleKarte.style.transform = 'translateX(10px)';
@@ -428,14 +406,10 @@
                             aktuelleKarte.style.transform = 'translateX(0px)';
                         }, 100);
                     }, 100);
-
-                    setTimeout(() => {
-                        this.classList.remove('feedback-incorrect');
-                    }, 500);
+                    setTimeout(() => this.classList.remove('feedback-incorrect'), 500);
                 }
             }
 
-            // ----- EVENT LISTENERS ZUWEISEN -----
             dropZones.forEach(zone => {
                 zone.addEventListener('dragover', handleDragOver);
                 zone.addEventListener('dragleave', handleDragLeave);
@@ -443,8 +417,6 @@
             });
 
             neustartBtn.addEventListener('click', init);
-
-            // ----- SPIEL STARTEN -----
             init();
         });
     </script>
